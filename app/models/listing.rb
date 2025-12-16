@@ -3,30 +3,31 @@ class Listing < ApplicationRecord
   belongs_to :category, optional: true
   has_many_attached :images
 
-  enum selling_type: {
+  enum :selling_type, {
     auction: "auction",
     fixed_price: "fixed_price",
     best_offer: "best_offer"
   }
 
-  enum status: {
+  enum :status, {
     draft: "draft",
     active: "active",
     sold: "sold",
     ended: "ended"
   }
 
-  enum condition: {
+  enum :condition, {
     new: "new",
     used: "used",
     refurbished: "refurbished"
-  }
+  }, prefix: true
 
   validates :title, :selling_type, :status, presence: true
 
   scope :active_listings, -> { where(status: "active") }
   scope :auctions, -> { where(selling_type: "auction") }
   scope :by_category, ->(category_id) { where(category_id: category_id) }
+  scope :with_display_data, -> { includes(:category, images_attachments: :blob) }
 
   def price
     return starting_price_cents if auction?

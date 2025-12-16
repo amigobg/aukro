@@ -5,6 +5,6 @@ class CategoriesController < ApplicationController
 
   def show
     @category = Category.find(params[:id])
-    @listings = @category.listings.active_listings.order(created_at: :desc)
+    @listings = @category.listings.active_listings.with_display_data.order(created_at: :desc)
   end
 end

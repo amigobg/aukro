@@ -3,7 +3,7 @@ class ListingsController < ApplicationController
 
   # GET /listings or /listings.json
   def index
-    @listings = Listing.all
+    @listings = Listing.with_display_data.order(created_at: :desc)
   end
 
   # GET /listings/1 or /listings/1.json
@@ -60,7 +60,7 @@ class ListingsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_listing
-      @listing = Listing.find(params.expect(:id))
+      @listing = Listing.with_display_data.find(params.expect(:id))
     end
 
     # Only allow a list of trusted parameters through.
