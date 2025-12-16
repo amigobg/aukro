@@ -1,9 +1,8 @@
-<%= form_with(model: listing, class: "contents") do |form| %>
+<%= form_with(model: listing, class: "max-w-2xl") do |form| %>
   <% if listing.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(listing.errors.count, "error") %> prohibited this listing from being saved:</h2>
-
-      <ul class="list-disc ml-6">
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-4 py-3 rounded-md mb-6">
+      <h2 class="font-semibold"><%= pluralize(listing.errors.count, "error") %> prohibited this listing from being saved:</h2>
+      <ul class="list-disc ml-6 mt-2">
         <% listing.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -11,82 +10,78 @@
     </div>
   <% end %>
 
-  <div class="my-5">
-    <%= form.label :user_id %>
-    <%= form.text_field :user_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:user_id].none?, "border-red-400 focus:outline-red-600": listing.errors[:user_id].any?}] %>
+  <%= form.hidden_field :user_id, value: current_user&.id %>
+
+  <div class="mb-6">
+    <%= form.label :title, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= form.text_field :title, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Enter listing title" %>
   </div>
 
-  <div class="my-5">
-    <%= form.label :title %>
-    <%= form.text_field :title, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:title].none?, "border-red-400 focus:outline-red-600": listing.errors[:title].any?}] %>
+  <div class="mb-6">
+    <%= form.label :description, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= form.text_area :description, rows: 6, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Describe your item..." %>
   </div>
 
-  <div class="my-5">
-    <%= form.label :description %>
-    <%= form.textarea :description, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:description].none?, "border-red-400 focus:outline-red-600": listing.errors[:description].any?}] %>
+  <div class="grid grid-cols-2 gap-6 mb-6">
+    <div>
+      <%= form.label :category_id, "Category", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.collection_select :category_id, Category.all, :id, :name, { prompt: "Select a category" }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+    </div>
+
+    <div>
+      <%= form.label :condition, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.select :condition, Listing.conditions.keys.map { |k| [k.titleize, k] }, { prompt: "Select condition" }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+    </div>
   </div>
 
-  <div class="my-5">
-    <%= form.label :category %>
-    <%= form.text_field :category, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:category].none?, "border-red-400 focus:outline-red-600": listing.errors[:category].any?}] %>
+  <div class="grid grid-cols-2 gap-6 mb-6">
+    <div>
+      <%= form.label :selling_type, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.select :selling_type, Listing.selling_types.keys.map { |k| [k.titleize, k] }, { prompt: "Select selling type" }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+    </div>
+
+    <div>
+      <%= form.label :status, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.select :status, Listing.statuses.keys.map { |k| [k.titleize, k] }, { prompt: "Select status" }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+    </div>
   </div>
 
-  <div class="my-5">
-    <%= form.label :condition %>
-    <%= form.text_field :condition, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:condition].none?, "border-red-400 focus:outline-red-600": listing.errors[:condition].any?}] %>
+  <div class="grid grid-cols-2 gap-6 mb-6">
+    <div>
+      <%= form.label :starting_price_cents, "Starting Price (cents)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.number_field :starting_price_cents, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "e.g., 1000 for $10.00" %>
+    </div>
+
+    <div>
+      <%= form.label :buy_now_price_cents, "Buy Now Price (cents)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.number_field :buy_now_price_cents, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Optional" %>
+    </div>
   </div>
 
-  <div class="my-5">
-    <%= form.label :status %>
-    <%= form.text_field :status, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:status].none?, "border-red-400 focus:outline-red-600": listing.errors[:status].any?}] %>
+  <div class="mb-6">
+    <%= form.label :auction_ends_at, "Auction End Date (for auctions)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= form.datetime_field :auction_ends_at, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
   </div>
 
-  <div class="my-5">
-    <%= form.label :selling_type %>
-    <%= form.text_field :selling_type, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:selling_type].none?, "border-red-400 focus:outline-red-600": listing.errors[:selling_type].any?}] %>
+  <div class="grid grid-cols-2 gap-6 mb-6">
+    <div>
+      <%= form.label :quantity, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.number_field :quantity, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "1" %>
+    </div>
+
+    <div>
+      <%= form.label :currency, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :currency, value: listing.currency || "USD", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+    </div>
   </div>
 
-  <div class="my-5">
-    <%= form.label :quantity %>
-    <%= form.number_field :quantity, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:quantity].none?, "border-red-400 focus:outline-red-600": listing.errors[:quantity].any?}] %>
+  <div class="mb-6">
+    <%= form.label :images, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= form.file_field :images, multiple: true, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
   </div>
 
-  <div class="my-5">
-    <%= form.label :starting_price_cents %>
-    <%= form.number_field :starting_price_cents, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:starting_price_cents].none?, "border-red-400 focus:outline-red-600": listing.errors[:starting_price_cents].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :reserve_price_cents %>
-    <%= form.number_field :reserve_price_cents, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:reserve_price_cents].none?, "border-red-400 focus:outline-red-600": listing.errors[:reserve_price_cents].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :buy_now_price_cents %>
-    <%= form.number_field :buy_now_price_cents, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:buy_now_price_cents].none?, "border-red-400 focus:outline-red-600": listing.errors[:buy_now_price_cents].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :auction_ends_at %>
-    <%= form.datetime_field :auction_ends_at, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:auction_ends_at].none?, "border-red-400 focus:outline-red-600": listing.errors[:auction_ends_at].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :shipping_type %>
-    <%= form.text_field :shipping_type, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:shipping_type].none?, "border-red-400 focus:outline-red-600": listing.errors[:shipping_type].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :shipping_price_cents %>
-    <%= form.number_field :shipping_price_cents, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:shipping_price_cents].none?, "border-red-400 focus:outline-red-600": listing.errors[:shipping_price_cents].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :currency %>
-    <%= form.text_field :currency, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": listing.errors[:currency].none?, "border-red-400 focus:outline-red-600": listing.errors[:currency].any?}] %>
-  </div>
-
-  <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  <div class="flex gap-4">
+    <%= form.submit class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-semibold cursor-pointer" %>
+    <%= link_to "Cancel", listings_path, class: "bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-md font-semibold" %>
   </div>
 <% end %>

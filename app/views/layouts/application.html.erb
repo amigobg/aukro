@@ -23,7 +23,14 @@
   </head>
 
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <%= render "shared/navigation" %>
+    <main class="container mx-auto mt-20 px-5">
+      <% if notice.present? %>
+        <div class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></div>
+      <% end %>
+      <% if alert.present? %>
+        <div class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-md inline-block" id="alert"><%= alert %></div>
+      <% end %>
       <%= yield %>
     </main>
   </body>
