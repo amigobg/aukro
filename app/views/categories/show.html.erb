@@ -1,0 +1,30 @@
+<h1><%= @category.name %></h1>
+<p class="category-description"><%= @category.description %></p>
+
+<div class="breadcrumb">
+  <%= link_to "Categories", categories_path %> / <%= @category.name %>
+</div>
+
+<% if @listings.any? %>
+  <div class="listings-grid">
+    <% @listings.each do |listing| %>
+      <div class="listing-card">
+        <%= link_to listing_path(listing) do %>
+          <div class="listing-type <%= listing.listing_type %>">
+            <%= listing.listing_type.capitalize %>
+          </div>
+          <h3><%= listing.title %></h3>
+          <p class="listing-description"><%= truncate(listing.description, length: 100) %></p>
+          <div class="listing-footer">
+            <span class="listing-price">$<%= number_with_precision(listing.current_price, precision: 2) %></span>
+          </div>
+          <div class="listing-meta">
+            <small>Posted by <%= listing.user.name %></small>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p>No listings in this category yet.</p>
+<% end %>

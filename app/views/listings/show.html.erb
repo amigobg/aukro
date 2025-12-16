@@ -1,0 +1,84 @@
+<div class="listing-detail">
+  <div class="listing-header">
+    <h1><%= @listing.title %></h1>
+    <span class="listing-type-badge <%= @listing.listing_type %>">
+      <%= @listing.listing_type.capitalize %>
+    </span>
+  </div>
+
+  <div class="listing-content">
+    <div class="listing-main">
+      <div class="listing-price-section">
+        <% if @listing.listing_type == "auction" %>
+          <h2>Current Bid</h2>
+          <p class="price">$<%= number_with_precision(@listing.current_price, precision: 2) %></p>
+          <% if @bids.any? %>
+            <p class="bid-count"><%= pluralize(@bids.count, "bid") %></p>
+          <% else %>
+            <p class="bid-count">Starting price</p>
+          <% end %>
+        <% else %>
+          <h2>Price</h2>
+          <p class="price">$<%= number_with_precision(@listing.price, precision: 2) %></p>
+        <% end %>
+      </div>
+
+      <div class="listing-description">
+        <h3>Description</h3>
+        <p><%= simple_format(@listing.description) %></p>
+      </div>
+
+      <div class="listing-info">
+        <p><strong>Category:</strong> <%= link_to @listing.category.name, category_path(@listing.category) %></p>
+        <p><strong>Posted by:</strong> <%= @listing.user.name %></p>
+        <p><strong>Status:</strong> <%= @listing.status.capitalize %></p>
+      </div>
+
+      <% if logged_in? && @listing.user == current_user %>
+        <div class="listing-actions">
+          <%= link_to "Edit", edit_listing_path(@listing), class: "btn btn-secondary" %>
+          <%= link_to "Delete", listing_path(@listing), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "btn btn-danger" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="listing-sidebar">
+      <% if @listing.listing_type == "auction" && @listing.status == "active" %>
+        <div class="bid-section">
+          <h3>Place a Bid</h3>
+          <% if logged_in? %>
+            <% if @listing.user == current_user %>
+              <p class="info-message">You cannot bid on your own listing.</p>
+            <% else %>
+              <%= form_with model: [@listing, Bid.new], local: true, class: "bid-form" do |form| %>
+                <div class="form-group">
+                  <%= form.label :amount, "Your Bid ($)" %>
+                  <%= form.number_field :amount, step: 0.01, min: @listing.current_price + 0.01, class: "form-control", required: true %>
+                  <small>Minimum: $<%= number_with_precision(@listing.current_price + 0.01, precision: 2) %></small>
+                </div>
+                <%= form.submit "Place Bid", class: "btn btn-primary btn-block" %>
+              <% end %>
+            <% end %>
+          <% else %>
+            <p><%= link_to "Login", login_path %> to place a bid.</p>
+          <% end %>
+        </div>
+
+        <% if @bids.any? %>
+          <div class="bids-history">
+            <h3>Bid History</h3>
+            <ul class="bid-list">
+              <% @bids.first(5).each do |bid| %>
+                <li>
+                  <strong><%= bid.user.name %></strong>
+                  <span class="bid-amount">$<%= number_with_precision(bid.amount, precision: 2) %></span>
+                  <small><%= time_ago_in_words(bid.created_at) %> ago</small>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

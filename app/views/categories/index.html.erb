@@ -1,0 +1,13 @@
+<h1>All Categories</h1>
+
+<div class="categories-grid">
+  <% @categories.each do |category| %>
+    <div class="category-card">
+      <%= link_to category_path(category) do %>
+        <h3><%= category.name %></h3>
+        <p><%= category.description %></p>
+        <span class="category-count"><%= pluralize(category.listings.active.count, "listing") %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
