@@ -1,0 +1,7 @@
+<% content_for :title, "Categories" %>
+
+<%= react_component "CategoriesIndexPage",
+  {
+    categories: category_payloads(@categories),
+    paths: { home: root_path }
+  } %>

@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-background: 248 246 255;
+    --color-foreground: 15 23 42;
+  }
+
+  body {
+    @apply min-h-screen bg-slate-50 text-slate-900 antialiased;
+    background-color: hsl(var(--color-background));
+    color: hsl(var(--color-foreground));
+  }
+}

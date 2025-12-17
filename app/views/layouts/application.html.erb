@@ -19,11 +19,13 @@
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="bg-slate-50 text-slate-950 min-h-screen">
+    <%= react_component "NavigationBar", navigation_props, class: "fixed inset-x-0 top-0 z-40" %>
+    <%= react_component "FlashMessages", flash_props, class: "pointer-events-none fixed inset-x-0 top-20 z-30 flex flex-col items-center gap-3 px-4" %>
+    <main class="container mx-auto px-4 pt-28 pb-12">
       <%= yield %>
     </main>
   </body>

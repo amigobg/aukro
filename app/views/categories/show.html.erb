@@ -1,0 +1,13 @@
+<% content_for :title, @category.name %>
+
+<%= react_component "CategoryShowPage",
+  {
+    category: category_payload(@category),
+    listings: listing_card_payloads(@listings),
+    meta: {
+      total_listings: @listings.count
+    },
+    paths: {
+      categories: categories_path
+    }
+  } %>
