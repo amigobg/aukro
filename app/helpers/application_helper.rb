@@ -102,7 +102,8 @@ module ApplicationHelper
         can_manage: owner_controls,
         edit_path: owner_controls ? edit_listing_path(listing) : nil,
         delete_path: owner_controls ? listing_path(listing) : nil
-      }
+      },
+      bid: listing_bid_payload(listing)
     )
   end
 
@@ -135,6 +136,185 @@ module ApplicationHelper
       errors: resource.errors.full_messages,
       links: links,
       meta: meta
+    }
+  end
+
+  def listing_form_fields(listing)
+    categories = Category.order(:name).pluck(:name, :id)
+    {
+      basics: [
+        {
+          type: "text",
+          name: "listing[title]",
+          id: "listing_title",
+          label: "Listing title",
+          placeholder: "Vintage camera bundle",
+          value: listing.title,
+          required: true
+        },
+        {
+          type: "textarea",
+          name: "listing[description]",
+          id: "listing_description",
+          label: "Description",
+          placeholder: "Describe the item, condition, shipping details...",
+          value: listing.description,
+          required: true,
+          full_width: true
+        }
+      ],
+      categorization: [
+        {
+          type: "select",
+          name: "listing[category_id]",
+          id: "listing_category_id",
+          label: "Category",
+          placeholder: "Select category",
+          value: listing.category_id,
+          options: categories.map { |name, id| { label: name, value: id } },
+          required: false
+        },
+        {
+          type: "select",
+          name: "listing[condition]",
+          id: "listing_condition",
+          label: "Condition",
+          placeholder: "Select condition",
+          value: listing.condition,
+          options: Listing.conditions.keys.map { |key| { label: key.titleize, value: key } },
+          required: false
+        },
+        {
+          type: "select",
+          name: "listing[selling_type]",
+          id: "listing_selling_type",
+          label: "Selling type",
+          placeholder: "Select selling type",
+          value: listing.selling_type,
+          options: Listing.selling_types.keys.map { |key| { label: key.titleize, value: key } },
+          required: true
+        },
+        {
+          type: "select",
+          name: "listing[status]",
+          id: "listing_status",
+          label: "Status",
+          placeholder: "Select status",
+          value: listing.status,
+          options: Listing.statuses.keys.map { |key| { label: key.titleize, value: key } },
+          required: true
+        }
+      ],
+      pricing: [
+        {
+          type: "number",
+          name: "listing[quantity]",
+          id: "listing_quantity",
+          label: "Quantity",
+          placeholder: "1",
+          value: listing.quantity,
+          step: 1
+        },
+        {
+          type: "number",
+          name: "listing[starting_price_cents]",
+          id: "listing_starting_price_cents",
+          label: "Starting price (cents)",
+          placeholder: "1000 for $10.00",
+          value: listing.starting_price_cents
+        },
+        {
+          type: "number",
+          name: "listing[buy_now_price_cents]",
+          id: "listing_buy_now_price_cents",
+          label: "Buy now price (cents)",
+          placeholder: "Optional",
+          value: listing.buy_now_price_cents
+        },
+        {
+          type: "datetime-local",
+          name: "listing[auction_ends_at]",
+          id: "listing_auction_ends_at",
+          label: "Auction ends at",
+          value: listing.auction_ends_at&.strftime("%Y-%m-%dT%H:%M")
+        },
+        {
+          type: "text",
+          name: "listing[currency]",
+          id: "listing_currency",
+          label: "Currency",
+          placeholder: "USD",
+          value: listing.currency || "USD"
+        }
+      ],
+      logistics: [
+        {
+          type: "text",
+          name: "listing[shipping_type]",
+          id: "listing_shipping_type",
+          label: "Shipping method",
+          placeholder: "Economy, Express, etc.",
+          value: listing.shipping_type
+        },
+        {
+          type: "number",
+          name: "listing[shipping_price_cents]",
+          id: "listing_shipping_price_cents",
+          label: "Shipping price (cents)",
+          placeholder: "e.g. 500",
+          value: listing.shipping_price_cents
+        }
+      ],
+      media: [
+        {
+          type: "file",
+          name: "listing[images][]",
+          id: "listing_images",
+          label: "Upload images",
+          multiple: true,
+          hint: "Add up to 10 high resolution images.",
+          full_width: true
+        }
+      ]
+    }
+  end
+
+  def listing_form_props(listing:, heading:, subheading:, submit_label:, action:, method:, back_path: listings_path)
+    {
+      heading: heading,
+      subheading: subheading,
+      form: {
+        action: action,
+        method: method.to_s,
+        authenticity_token: form_authenticity_token,
+        submit_label: submit_label,
+        field_groups: listing_form_fields(listing),
+        multipart: true
+      },
+      errors: listing.errors.full_messages,
+      cancel_path: back_path
+    }
+  end
+
+  def listing_bid_payload(listing)
+    return nil unless listing.auction?
+
+    current_bid_cents = listing.starting_price_cents.to_i
+    minimum_bid_cents = current_bid_cents + 100
+
+    amount_decimal = minimum_bid_cents.to_f / 100.0
+
+    {
+      can_bid: user_signed_in? && current_user.id != listing.user_id,
+      action: bid_listing_path(listing),
+      authenticity_token: form_authenticity_token,
+      current_bid: listing.formatted_price,
+      minimum_bid_display: number_to_currency(amount_decimal),
+      minimum_bid_cents: minimum_bid_cents,
+      min_amount: amount_decimal.round(2),
+      sign_in_path: new_user_session_path,
+      requires_login: !user_signed_in?,
+      is_owner: user_signed_in? && current_user.id == listing.user_id
     }
   end
 end

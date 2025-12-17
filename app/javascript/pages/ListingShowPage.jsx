@@ -1,9 +1,63 @@
 import React from "react"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, AlertCircle } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Badge } from "../components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
-import { cn, formatDate } from "../lib/utils"
+import { formatDate } from "../lib/utils"
+
+function BidPanel({ bid }) {
+  if (!bid) return null
+  const minValue = Number.parseFloat(bid.min_amount || 0).toFixed(2)
+
+  if (bid.requires_login) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+        <p className="font-medium text-slate-900">Sign in to place a bid</p>
+        <a href={bid.sign_in_path} className="mt-2 inline-flex text-blue-600 hover:underline">
+          Go to sign in
+        </a>
+      </div>
+    )
+  }
+
+  if (bid.is_owner) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="flex items-center gap-2 font-medium">
+          <AlertCircle className="h-4 w-4" />
+          You&apos;re the owner of this listing
+        </div>
+        <p className="mt-2 text-amber-700">Use the manage section below to edit or end the listing.</p>
+      </div>
+    )
+  }
+
+  if (!bid.can_bid) return null
+
+  return (
+    <form action={bid.action} method="post" className="space-y-3">
+      <input type="hidden" name="authenticity_token" value={bid.authenticity_token} />
+      <div className="text-sm text-slate-600">
+        Current bid <span className="font-semibold text-slate-900">{bid.current_bid}</span>
+      </div>
+      <label className="text-sm font-medium text-slate-700">
+        Your bid (USD)
+        <input
+          type="number"
+          name="bid[amount]"
+          step="0.01"
+          min={bid.min_amount}
+          defaultValue={minValue}
+          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/20"
+        />
+      </label>
+      <p className="text-xs text-slate-500">Minimum bid: {bid.minimum_bid_display}</p>
+      <Button type="submit" className="w-full" size="lg">
+        Place bid
+      </Button>
+    </form>
+  )
+}
 
 export default function ListingShowPage({ listing, authenticity_token, paths = {} }) {
   if (!listing) return null
@@ -66,9 +120,13 @@ export default function ListingShowPage({ listing, authenticity_token, paths = {
                   Auction ends <span className="font-semibold text-slate-900">{formatDate(listing.auction_ends_at, { time: true })}</span>
                 </div>
               )}
-              <Button size="lg" className="w-full">
-                {ctaLabel}
-              </Button>
+              {isAuction ? (
+                <BidPanel bid={listing.bid} />
+              ) : (
+                <Button size="lg" className="w-full">
+                  {ctaLabel}
+                </Button>
+              )}
             </CardContent>
           </Card>
 

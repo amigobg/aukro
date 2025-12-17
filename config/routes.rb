@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  resources :listings
+  resources :listings do
+    post :bid, on: :member
+  end
   resources :categories, only: [:index, :show]
   devise_for :users
 

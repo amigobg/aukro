@@ -1,7 +1,12 @@
 <% content_for :title, "Create New Listing" %>
 
-<div class="w-full max-w-4xl">
-  <h1 class="text-3xl font-bold mb-8">Create New Listing</h1>
-  <%= render "form", listing: @listing %>
-</div>
-
+<%= react_component "ListingFormPage",
+  listing_form_props(
+    listing: @listing,
+    heading: "Create a new listing",
+    subheading: "Share your item with Aukro's marketplace community.",
+    submit_label: "Publish listing",
+    action: listings_path,
+    method: :post
+  )
+%>

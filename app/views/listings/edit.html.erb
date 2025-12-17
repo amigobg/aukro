@@ -1,7 +1,12 @@
 <% content_for :title, "Edit Listing" %>
 
-<div class="w-full max-w-4xl">
-  <h1 class="text-3xl font-bold mb-8">Edit Listing</h1>
-  <%= render "form", listing: @listing %>
-</div>
-
+<%= react_component "ListingFormPage",
+  listing_form_props(
+    listing: @listing,
+    heading: "Update listing",
+    subheading: "Refine details, adjust pricing, or refresh the description.",
+    submit_label: "Save changes",
+    action: listing_path(@listing),
+    method: :patch
+  )
+%>
