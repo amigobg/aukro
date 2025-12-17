@@ -105,4 +105,36 @@ module ApplicationHelper
       }
     )
   end
+
+  def auth_form_field(name, label:, id:, type: "text", value: nil, placeholder: nil, autocomplete: nil, required: true, hint: nil, checked: nil)
+    {
+      name: name,
+      label: label,
+      id: id,
+      type: type,
+      value: value.presence,
+      placeholder: placeholder,
+      autocomplete: autocomplete,
+      required: required,
+      hint: hint,
+      checked: checked
+    }.compact
+  end
+
+  def auth_page_props(resource:, resource_name:, heading:, subheading:, submit_label:, action:, method: :post, fields:, links: [], meta: {})
+    {
+      heading: heading,
+      subheading: subheading,
+      form: {
+        action: action,
+        method: method.to_s,
+        authenticity_token: form_authenticity_token,
+        submit_label: submit_label,
+        fields: fields
+      },
+      errors: resource.errors.full_messages,
+      links: links,
+      meta: meta
+    }
+  end
 end

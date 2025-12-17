@@ -1,26 +1,49 @@
-<h2>Log in</h2>
+<%
+  fields = [
+    auth_form_field(
+      "#{resource_name}[email]",
+      label: "Email address",
+      id: "#{resource_name}_email",
+      type: "email",
+      value: resource.email,
+      placeholder: "you@example.com",
+      autocomplete: "email"
+    ),
+    auth_form_field(
+      "#{resource_name}[password]",
+      label: "Password",
+      id: "#{resource_name}_password",
+      type: "password",
+      placeholder: "••••••••",
+      autocomplete: "current-password"
+    )
+  ]
 
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+  if devise_mapping.rememberable?
+    fields << auth_form_field(
+      "#{resource_name}[remember_me]",
+      label: "Keep me signed in on this device",
+      id: "#{resource_name}_remember_me",
+      type: "checkbox",
+      checked: resource.respond_to?(:remember_me) ? resource.remember_me : false,
+      required: false
+    )
+  end
 
-  <div class="field">
-    <%= f.label :password %><br />
-    <%= f.password_field :password, autocomplete: "current-password" %>
-  </div>
+  links = []
+  links << { label: "Forgot your password?", href: new_password_path(resource_name) } if devise_mapping.recoverable?
+  links << { label: "Create a new account", href: new_registration_path(resource_name) } if devise_mapping.registerable?
+%>
 
-  <% if devise_mapping.rememberable? %>
-    <div class="field">
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
-    </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit "Log in" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+<%= react_component "AuthPage",
+  auth_page_props(
+    resource: resource,
+    resource_name: resource_name,
+    heading: "Welcome back",
+    subheading: "Sign in to access your dashboard and manage every listing in one place.",
+    submit_label: "Sign in",
+    action: session_path(resource_name),
+    fields: fields,
+    links: links
+  )
+%>
