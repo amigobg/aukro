@@ -1,56 +1,15 @@
 <% content_for :title, "All Listings" %>
 
-<div class="w-full">
-  <div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold">All Listings</h1>
-    <% if user_signed_in? %>
-      <%= link_to "Create Listing", new_listing_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-semibold" %>
-    <% end %>
-  </div>
-
-  <% if @listings.any? %>
-    <div class="mb-4">
-      <p class="text-gray-600"><%= pluralize(@listings.count, 'listing') %> available</p>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <% @listings.each do |listing| %>
-        <%= link_to listing_path(listing), class: "block" do %>
-          <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-            <div class="aspect-square bg-gray-100 flex items-center justify-center">
-              <% if listing.images.attached? %>
-                <%= image_tag listing.images.first, class: "w-full h-full object-cover" %>
-              <% else %>
-                <span class="text-gray-400 text-4xl">📷</span>
-              <% end %>
-            </div>
-            <div class="p-4">
-              <h3 class="font-semibold text-gray-900 mb-2 truncate"><%= listing.title %></h3>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-lg font-bold text-blue-600"><%= listing.formatted_price %></span>
-                <% if listing.auction? %>
-                  <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Auction</span>
-                <% elsif listing.fixed_price? %>
-                  <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Buy Now</span>
-                <% end %>
-              </div>
-              <% if listing.category %>
-                <p class="text-xs text-gray-500"><%= listing.category.name %></p>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-      <p class="text-gray-500 text-lg mb-4">No listings yet</p>
-      <% if user_signed_in? %>
-        <%= link_to "Create the first listing", new_listing_path, class: "text-blue-600 hover:text-blue-800 font-medium" %>
-      <% else %>
-        <%= link_to "Sign in to create a listing", new_user_session_path, class: "text-blue-600 hover:text-blue-800 font-medium" %>
-      <% end %>
-    </div>
-  <% end %>
-</div>
-
+<%= react_component "ListingsIndexPage",
+  {
+    listings: listing_card_payloads(@listings),
+    meta: { total: @listings.count },
+    actions: {
+      can_create: user_signed_in?,
+      new_listing_path: new_listing_path,
+      sign_in_path: new_user_session_path
+    },
+    paths: {
+      home: root_path
+    }
+  } %>

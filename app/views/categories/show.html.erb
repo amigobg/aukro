@@ -1,57 +1,13 @@
 <% content_for :title, @category.name %>
 
-<div class="w-full">
-  <!-- Category Header -->
-  <div class="mb-8">
-    <div class="flex items-center mb-2">
-      <%= link_to "Categories", categories_path, class: "text-blue-600 hover:text-blue-800" %>
-      <span class="mx-2 text-gray-400">/</span>
-      <span class="text-gray-700"><%= @category.name %></span>
-    </div>
-    <h1 class="text-3xl font-bold mb-2"><%= @category.name %></h1>
-    <p class="text-gray-600"><%= @category.description %></p>
-  </div>
-
-  <!-- Listings Grid -->
-  <% if @listings.any? %>
-    <div class="mb-4">
-      <p class="text-gray-600"><%= pluralize(@listings.count, 'listing') %> found</p>
-    </div>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <% @listings.each do |listing| %>
-        <%= link_to listing_path(listing), class: "block" do %>
-          <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-            <div class="aspect-square bg-gray-100 flex items-center justify-center">
-              <% if listing.images.attached? %>
-                <%= image_tag listing.images.first, class: "w-full h-full object-cover" %>
-              <% else %>
-                <span class="text-gray-400 text-4xl">📷</span>
-              <% end %>
-            </div>
-            <div class="p-4">
-              <h3 class="font-semibold text-gray-900 mb-2 truncate"><%= listing.title %></h3>
-              <div class="flex justify-between items-center">
-                <span class="text-lg font-bold text-blue-600"><%= listing.formatted_price %></span>
-                <% if listing.auction? %>
-                  <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Auction</span>
-                <% elsif listing.fixed_price? %>
-                  <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Buy Now</span>
-                <% end %>
-              </div>
-              <% if listing.auction? && listing.auction_ends_at %>
-                <p class="text-xs text-gray-500 mt-2">Ends: <%= listing.auction_ends_at.strftime("%b %d, %Y") %></p>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-      <p class="text-gray-500 text-lg mb-4">No listings in this category yet</p>
-      <%= link_to "Browse other categories", categories_path, class: "text-blue-600 hover:text-blue-800 font-medium" %>
-    </div>
-  <% end %>
-</div>
-
+<%= react_component "CategoryShowPage",
+  {
+    category: category_payload(@category),
+    listings: listing_card_payloads(@listings),
+    meta: {
+      total_listings: @listings.count
+    },
+    paths: {
+      categories: categories_path
+    }
+  } %>

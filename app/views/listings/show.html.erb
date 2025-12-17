@@ -1,97 +1,10 @@
 <% content_for :title, @listing.title %>
 
-<div class="w-full max-w-6xl mx-auto">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <!-- Image Gallery -->
-    <div>
-      <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-        <% if @listing.images.attached? %>
-          <%= image_tag @listing.images.first, class: "w-full h-full object-cover rounded-lg" %>
-        <% else %>
-          <span class="text-gray-400 text-6xl">📷</span>
-        <% end %>
-      </div>
-      <% if @listing.images.count > 1 %>
-        <div class="grid grid-cols-4 gap-2">
-          <% @listing.images[1..4].each do |image| %>
-            <div class="aspect-square bg-gray-100 rounded">
-              <%= image_tag image, class: "w-full h-full object-cover rounded" %>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-
-    <!-- Listing Details -->
-    <div>
-      <h1 class="text-3xl font-bold mb-4"><%= @listing.title %></h1>
-      
-      <!-- Price Section -->
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-        <% if @listing.auction? %>
-          <div class="mb-2">
-            <span class="text-gray-600">Current bid:</span>
-          </div>
-          <div class="text-3xl font-bold text-blue-600 mb-4"><%= @listing.formatted_price %></div>
-          <% if @listing.auction_ends_at %>
-            <div class="text-sm text-gray-600 mb-4">
-              <span class="font-medium">Auction ends:</span> <%= @listing.auction_ends_at.strftime("%B %d, %Y at %I:%M %p") %>
-            </div>
-          <% end %>
-          <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold">
-            Place Bid
-          </button>
-        <% elsif @listing.fixed_price? %>
-          <div class="mb-2">
-            <span class="text-gray-600">Price:</span>
-          </div>
-          <div class="text-3xl font-bold text-blue-600 mb-4"><%= @listing.formatted_price %></div>
-          <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold">
-            Buy It Now
-          </button>
-        <% end %>
-      </div>
-
-      <!-- Details -->
-      <div class="space-y-4">
-        <div>
-          <h2 class="text-lg font-semibold mb-2">Description</h2>
-          <p class="text-gray-700"><%= @listing.description || "No description provided" %></p>
-        </div>
-
-        <div class="border-t pt-4">
-          <h2 class="text-lg font-semibold mb-3">Item Details</h2>
-          <dl class="grid grid-cols-2 gap-3 text-sm">
-            <% if @listing.condition %>
-              <dt class="text-gray-600">Condition:</dt>
-              <dd class="font-medium"><%= @listing.condition.titleize %></dd>
-            <% end %>
-            
-            <% if @listing.category %>
-              <dt class="text-gray-600">Category:</dt>
-              <dd class="font-medium">
-                <%= link_to @listing.category.name, category_path(@listing.category), class: "text-blue-600 hover:text-blue-800" %>
-              </dd>
-            <% end %>
-            
-            <% if @listing.quantity %>
-              <dt class="text-gray-600">Quantity:</dt>
-              <dd class="font-medium"><%= @listing.quantity %></dd>
-            <% end %>
-            
-            <dt class="text-gray-600">Selling Type:</dt>
-            <dd class="font-medium"><%= @listing.selling_type.titleize %></dd>
-          </dl>
-        </div>
-
-        <% if user_signed_in? && @listing.user_id == current_user.id %>
-          <div class="border-t pt-4 flex gap-2">
-            <%= link_to "Edit", edit_listing_path(@listing), class: "flex-1 text-center py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-50" %>
-            <%= button_to "Delete", @listing, method: :delete, class: "flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700", data: { turbo_confirm: "Are you sure?" } %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-</div>
-
+<%= react_component "ListingShowPage",
+  {
+    listing: listing_detail_payload(@listing),
+    authenticity_token: form_authenticity_token,
+    paths: {
+      back: listings_path
+    }
+  } %>
